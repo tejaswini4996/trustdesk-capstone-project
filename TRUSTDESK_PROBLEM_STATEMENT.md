@@ -24,7 +24,7 @@ The objective is to build a reliable backend for an AI support operations platfo
 
 This project is intentionally language agnostic. You may implement it in Node.js, Java, Python, Go, Ruby, or any backend stack of your choice.
 
-You are free to choose your framework, database, queue, retrieval approach, vector store, and AI provider. Free-tier APIs or locally hosted models are acceptable, and tests may run against a mocked model adapter. Your choices must be documented, and the system must satisfy the functional, security, and evaluation requirements described below.
+You are free to choose your framework, database, queue, retrieval approach, vector store, and AI provider. Free-tier APIs (for example Gemini or Groq) or locally hosted models (for example via Ollama) are acceptable, and tests may run against a mocked model adapter. Your choices must be documented, and the system must satisfy the functional, security, and evaluation requirements described below.
 
 The provided Python scripts are optional instructor utilities. They are not part of the required implementation stack.
 
@@ -75,7 +75,7 @@ The provided Python scripts are optional instructor utilities. They are not part
 - Detect prompt-injection attempts in tickets and retrieved documents.
 - Treat customer messages and retrieved content as untrusted input.
 - Prevent sensitive information disclosure, including API keys, system prompts, internal policy notes, or unrelated PII.
-- Enforce tenant/user authorization when reading tickets, customers, orders, and documents.
+- Enforce user/role authorization when reading tickets, customers, orders, and documents.
 - Add limits for token usage, retrieval size, tool calls, and repeated retries.
 - Provide a fallback path to human escalation when guardrails fail.
 
@@ -148,6 +148,8 @@ You may plan your own schedule, but this staging keeps scope manageable:
 3. **Grounded drafts:** Draft replies with citations, refusal/escalation for unsupported requests, draft approval lifecycle.
 4. **Tools and guardrails:** Tool registry, approval gates, idempotency, prompt-injection defenses.
 5. **Evaluation and polish:** Eval runner over `data/eval_cases.jsonl`, evaluation report, observability, documentation, demo video.
+
+**Minimum viable submission:** knowledge-base ingestion and retrieval, ticket triage, draft replies with citations, at least one approval-gated tool action, guardrails that handle the provided adversarial cases, and the eval runner with a report. Everything beyond this — including all Optional Extensions — strengthens the submission but should not come before a working core.
 
 ## Provided Starter Dataset
 
