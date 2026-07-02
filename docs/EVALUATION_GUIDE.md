@@ -31,6 +31,12 @@ The expected object may include:
 - `should_escalate`
 - `answer_requirements`
 
+`disallowed_actions` means the action must not be recommended or executed for this case at this stage, even when the tool catalog allows that tool for the ticket's category. For example, a warranty replacement may be catalog-valid but still disallowed because safety escalation and proof of purchase come first.
+
+## Date Handling
+
+Evaluate policy windows such as return eligibility and warranty coverage relative to each ticket's `created_at`, not the current date. The seed data is static; checking against the wall clock would make cases expire over time.
+
 ## Required Metrics
 
 ### 1. Triage Accuracy

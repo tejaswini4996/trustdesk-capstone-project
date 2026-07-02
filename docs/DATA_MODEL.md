@@ -13,6 +13,8 @@ This is a language-agnostic data model. Learners may use SQL, NoSQL, document st
 
 These files are the canonical seed data. The optional SQLite seed script is only one possible way to load them.
 
+Policy windows in the seed data (return eligibility, warranty periods) should be evaluated relative to each ticket's `created_at`, not the current date, so the pack stays valid over time.
+
 ## Entities
 
 ### Customer
