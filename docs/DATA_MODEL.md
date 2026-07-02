@@ -1,6 +1,6 @@
 # TrustDesk Data Model
 
-This is a language-agnostic data model. Learners may use SQL, NoSQL, document stores, vector databases, search indexes, or local files, as long as they preserve the core entities and relationships.
+This is a language-agnostic data model. You may use SQL, NoSQL, document stores, vector databases, search indexes, or local files, as long as you preserve the core entities and relationships.
 
 ## Source Data Files
 
@@ -226,5 +226,4 @@ Acceptable storage choices include:
 - Elasticsearch, OpenSearch, Typesense, or database full-text search for retrieval.
 - pgvector, Qdrant, Pinecone, Weaviate, Chroma, or similar vector stores for semantic retrieval.
 
-The grading focus is not the specific database. The grading focus is whether the data is modeled clearly, persists correctly, and supports auditability, retrieval, approval, and evaluation flows.
-
+You will not be evaluated on choosing a specific database. You will be evaluated on whether the data is modeled clearly, persists correctly, and supports auditability, retrieval, approval, and evaluation flows.

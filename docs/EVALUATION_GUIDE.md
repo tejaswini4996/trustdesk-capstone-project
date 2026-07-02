@@ -2,7 +2,7 @@
 
 This guide defines language-agnostic evaluation expectations for TrustDesk.
 
-Learners may implement evaluation as:
+You may implement evaluation as:
 
 - a CLI command,
 - an API endpoint,
@@ -103,7 +103,7 @@ This can be checked manually, with deterministic assertions, or with an LLM-as-j
 
 ## Evaluation Report
 
-The final project submission should include an evaluation report with:
+Your final project should include an evaluation report with:
 
 - Overall metric summary.
 - Per-case pass/fail table.
@@ -114,4 +114,3 @@ The final project submission should include an evaluation report with:
 ## Important Rule
 
 The expected labels in `data/tickets.json` and `data/eval_cases.jsonl` are for evaluation only. The production API should not expose them to the AI generation path or use them as hidden answers.
-

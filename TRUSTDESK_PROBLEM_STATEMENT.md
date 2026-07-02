@@ -1,4 +1,4 @@
-# Backend Engineering Launchpad - Case Study
+# AI-First Software Engineering Capstone - Case Study
 
 ## TrustDesk: AI Support Operations Agent
 
@@ -8,9 +8,9 @@
 
 Modern support teams handle thousands of repetitive but high-stakes customer conversations. A good support system must answer quickly, cite the right policy, understand customer and order context, route edge cases to humans, and avoid taking risky actions without approval.
 
-Traditional chatbots usually fail because they either hallucinate answers, ignore company policy, or cannot safely act on behalf of support teams. TrustDesk is an AI-first backend project where the AI is not just a text generator. It must retrieve policy context, classify tickets, decide whether it has enough evidence, suggest or execute allowed tools, and leave a complete audit trail.
+Traditional chatbots usually fail because they either hallucinate answers, ignore company policy, or cannot safely act on behalf of support teams. TrustDesk is an AI-first product where the AI is not just a text generator. It must retrieve policy context, classify tickets, decide whether it has enough evidence, suggest or execute allowed tools, and leave a complete audit trail.
 
-The objective is to build a reliable backend for an AI support operations platform that can:
+The objective is to build a reliable AI support operations platform that can:
 
 - Ingest company support documents and retrieve relevant policy context.
 - Triage incoming support tickets by intent, priority, sentiment, and escalation need.
@@ -22,11 +22,11 @@ The objective is to build a reliable backend for an AI support operations platfo
 
 ## Language and Stack
 
-This project is intentionally language agnostic. You may implement it in Node.js, Java, Python, Go, Ruby, or any backend stack of your choice.
+This project is intentionally language agnostic. You may implement it in Node.js, Java, Python, Go, Ruby, or any stack of your choice.
 
 You are free to choose your framework, database, queue, retrieval approach, vector store, and AI provider. Free-tier APIs (for example Gemini or Groq) or locally hosted models (for example via Ollama) are acceptable, and tests may run against a mocked model adapter. Your choices must be documented, and the system must satisfy the functional, security, and evaluation requirements described below.
 
-The provided Python scripts are optional instructor utilities. They are not part of the required implementation stack.
+The provided Python scripts are optional local utilities. They are not part of the required implementation stack.
 
 ## Key Features
 
@@ -100,6 +100,21 @@ The provided Python scripts are optional instructor utilities. They are not part
 - Build an evaluation command or endpoint that runs the provided eval cases.
 - Report accuracy for triage, citation coverage, refusal/escalation behavior, and tool-action safety.
 
+### 8. Frontend Demo Experience
+
+- Build a lightweight frontend for support agents.
+- You may vibe-code or AI-assist the frontend.
+- The UI should let a reviewer:
+  - view the ticket queue,
+  - open a ticket with customer and order context,
+  - trigger triage,
+  - generate and review an AI draft,
+  - inspect citations,
+  - approve, reject, or edit a draft,
+  - approve or reject sensitive tool actions,
+  - view evaluation results.
+- The frontend does not need to be visually elaborate, but it should make the core workflow easy to demo.
+
 ## Technical Requirements
 
 - Expose core functionality as RESTful APIs or a clearly documented equivalent HTTP API.
@@ -143,13 +158,13 @@ You may design your own API shape, but a complete solution should cover flows si
 
 You may plan your own schedule, but this staging keeps scope manageable:
 
-1. **Core backend:** Auth, tickets, customers, orders, persistence, knowledge-base ingestion.
+1. **Core platform:** Auth, tickets, customers, orders, persistence, knowledge-base ingestion.
 2. **Retrieval and triage:** Knowledge-base search, ticket triage with stored traces.
 3. **Grounded drafts:** Draft replies with citations, refusal/escalation for unsupported requests, draft approval lifecycle.
 4. **Tools and guardrails:** Tool registry, approval gates, idempotency, prompt-injection defenses.
-5. **Evaluation and polish:** Eval runner over `data/eval_cases.jsonl`, evaluation report, observability, documentation, demo video.
+5. **Frontend and polish:** Support-agent UI, eval runner over `data/eval_cases.jsonl`, evaluation report, observability, documentation, demo video.
 
-**Minimum viable submission:** knowledge-base ingestion and retrieval, ticket triage, draft replies with citations, at least one approval-gated tool action, guardrails that handle the provided adversarial cases, and the eval runner with a report. Everything beyond this — including all Optional Extensions — strengthens the submission but should not come before a working core.
+**Minimum viable submission:** knowledge-base ingestion and retrieval, ticket triage, draft replies with citations, at least one approval-gated tool action, a lightweight frontend, guardrails that handle the provided adversarial cases, and the eval runner with a report. Everything beyond this — including all Optional Extensions — strengthens the submission but should not come before a working core.
 
 ## Provided Starter Dataset
 
@@ -163,7 +178,7 @@ This capstone pack includes:
 - Raw files that can be loaded into any database or storage system.
 - Optional Python scripts to seed a local SQLite database and run a retrieval baseline.
 
-Learners may extend the dataset, but must document any added data and how it affects evaluation.
+You may extend the dataset, but you must document any added data and how it affects evaluation.
 
 ## Assessment Criteria
 
@@ -172,14 +187,14 @@ Learners may extend the dataset, but must document any added data and how it aff
 - **Agentic Design:** Are tool actions modeled cleanly with permissions, idempotency, approval, and traceability?
 - **Security and Guardrails:** Does the system defend against prompt injection, PII leakage, unsupported actions, and excessive agency?
 - **Evaluation:** Does the project include repeatable evals and a clear report of strengths and failures?
-- **System Design:** Is the backend modular, scalable, fault-tolerant, and easy to extend?
+- **System Design:** Is the system modular, scalable, fault-tolerant, and easy to extend?
 - **Code Quality:** Is the code clean, organized, tested, and maintainable?
 - **Documentation:** Does the README explain setup, API usage, architecture, design decisions, and known limitations?
 - **Presentation:** Does the demo clearly show AI triage, grounded answering, approval gates, guardrails, and evaluation results?
 
 ## Deliverables
 
-1. Final functional product.
+1. Final functional product with an API and lightweight frontend.
 2. README with setup instructions, API documentation, architecture, and design decisions.
 3. Public GitHub repository link.
 4. Seeded demo data and instructions to reproduce the demo.

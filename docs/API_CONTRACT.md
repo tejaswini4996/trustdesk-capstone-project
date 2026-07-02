@@ -1,8 +1,8 @@
 # TrustDesk API Contract
 
-This document describes the expected backend behavior without requiring any specific programming language or framework.
+This document describes the expected product and API behavior without requiring any specific programming language or framework.
 
-Learners may change route names, request shapes, or response shapes if they document the changes clearly. A strong submission should still support the flows below.
+You may change route names, request shapes, or response shapes if you document the changes clearly. Your implementation should still support the flows below.
 
 ## Roles
 
@@ -253,4 +253,3 @@ Tool actions must use idempotency keys so retries do not create duplicate refund
 ## Auditability
 
 Every AI-generated answer, triage decision, retrieval result, tool recommendation, approval, and tool execution should be traceable to a ticket and reviewer or system actor.
-
