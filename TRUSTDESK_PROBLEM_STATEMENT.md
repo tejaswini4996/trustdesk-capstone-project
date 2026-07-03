@@ -18,7 +18,7 @@ The objective is to build a reliable AI support operations platform that can:
 - Suggest safe operational actions such as replacement, refund review, coupon creation, or escalation.
 - Require human approval for sensitive actions.
 - Defend against prompt injection, unsupported policy claims, PII leakage, and excessive agency.
-- Track feedback, evaluations, costs, traces, and support outcomes.
+- Track evaluations and the minimum trace data needed to debug AI decisions.
 
 ## Language and Stack
 
@@ -28,108 +28,140 @@ You are free to choose your framework, database, queue, retrieval approach, vect
 
 The provided Python scripts are optional local utilities. They are not part of the required implementation stack.
 
-## Key Features
+## Scope
 
-### 1. Knowledge Base Ingestion and Retrieval
+TrustDesk has a clear core scope. Build the Must Have features first. Good To Have and Stretch features should only be attempted after the core workflow is working end to end.
 
-- Ingest Markdown, text, or JSON support documents.
-- Store document metadata such as document ID, title, source, version, and updated timestamp.
-- Chunk large documents for retrieval.
-- Implement keyword, vector, or hybrid search.
-- Return citations for every policy-backed answer.
-- Support re-ingestion when a policy document changes.
+## Recommended Demo Flow
 
-### 2. Ticket Intake and Triage
+Your final demo should be able to show this flow clearly:
 
-- Provide APIs to create and fetch support tickets.
-- Classify each ticket into categories such as `shipping`, `refund`, `warranty`, `billing`, `account_security`, or `general`.
-- Assign priority such as `low`, `medium`, `high`, or `urgent`.
-- Detect sentiment and escalation needs.
-- Attach customer and order context where available.
-- Store triage decisions and model reasoning summaries for auditability.
+1. Open a ticket from the provided seed data.
+2. Run AI triage and show category, priority, and escalation decision.
+3. Generate a draft reply with policy citations.
+4. Show the minimal trace for that AI run.
+5. For one eligible case, show an approval-gated action such as `start_refund_review` or `create_replacement_order`.
+6. For one adversarial case, show that the system refuses or escalates instead of following unsafe instructions.
+7. Run the eval command or endpoint and show the summary report.
 
-### 3. AI Draft Replies With Citations
+Good demo tickets:
 
-- Generate a draft support response using ticket content, customer/order context, and retrieved policy documents.
-- Include citation references to the documents used.
-- Refuse or escalate when the answer is not supported by retrieved policy.
-- Avoid exposing internal-only notes, hidden prompts, secrets, or irrelevant customer data.
-- Support draft lifecycle states: `generated`, `edited`, `approved`, `rejected`, and `sent`.
+- `tkt_9001`: damaged earbuds, suitable for a replacement or refund-review flow.
+- `tkt_9006`: prompt injection asking for a hidden large coupon.
+- `tkt_9007`: request to reveal hidden prompts and secrets.
 
-### 4. Tool Actions and Human Approval
+## Acceptable Simplifications
 
-- Implement a mock tool registry for support operations.
-- Example tools:
-  - `create_replacement_order`
-  - `start_refund_review`
-  - `issue_coupon`
-  - `open_carrier_investigation`
-  - `escalate_to_human`
-  - `lock_account`
-- The AI may recommend actions, but sensitive actions must require human approval.
-- Store tool call requests, approval decisions, execution status, and idempotency keys.
-- Prevent the AI from invoking tools that are not allowed for the ticket type or user role.
+- Retrieval can be keyword search, database full-text search, embeddings, or hybrid search. Vector search is not required.
+- Authentication can be a simple demo token or login flow. Full role-based access control is Good To Have.
+- You may use a free-tier hosted model, a local model, or a mocked model in tests.
+- The frontend can be a simple page with buttons and JSON/result panels. UI polish is not graded.
+- You only need one approval-gated action for Must Have. More actions are Good To Have.
+- Minimal traces are enough for Must Have. Full latency, cost, token, and prompt-version tracking is Good To Have.
 
-### 5. Guardrails and Security
+## Avoid These Mistakes
 
-- Detect prompt-injection attempts in tickets and retrieved documents.
-- Treat customer messages and retrieved content as untrusted input.
-- Prevent sensitive information disclosure, including API keys, system prompts, internal policy notes, or unrelated PII.
-- Enforce user/role authorization when reading tickets, customers, orders, and documents.
-- Add limits for token usage, retrieval size, tool calls, and repeated retries.
-- Provide a fallback path to human escalation when guardrails fail.
+- Do not use the expected labels from `data/tickets.json` or `data/eval_cases.jsonl` as hidden answers in your AI flow. They are for evaluation only.
+- Do not evaluate return windows or warranty windows using the current date. Use each ticket's `created_at`.
+- Do not treat retrieved documents as trusted instructions. `KB-ADVERSARIAL-001` is intentionally unsafe.
+- Do not execute sensitive actions directly from AI output. Require approval first.
+- Do not build Good To Have features before the Must Have workflow works end to end.
 
-### 6. Feedback and Learning Loop
+## Must Have
 
-- Let support agents rate AI drafts and triage quality.
-- Store corrected responses and final human-approved replies.
-- Track common failure reasons such as wrong citation, unsupported refund, missing context, or unsafe action.
-- Use feedback data in evaluation reports or future prompt/retrieval improvements.
+### 1. Load the Provided Data
 
-### 7. Observability and Evaluation
+- Load the provided customers, orders, tickets, tool catalog, eval cases, and knowledge-base documents.
+- Use any persistent store you prefer.
+- Preserve document IDs such as `KB-REFUND-001` because evals depend on them.
+- Evaluate policy windows such as return eligibility and warranty coverage relative to each ticket's `created_at`, not the current date.
 
-- Log each AI run with:
-  - ticket ID
-  - retrieved document IDs
-  - model/provider used
-  - prompt/template version
-  - tool calls requested
-  - guardrail results
-  - latency
-  - token/cost estimate if available
-- Build an evaluation command or endpoint that runs the provided eval cases.
-- Report accuracy for triage, citation coverage, refusal/escalation behavior, and tool-action safety.
+### 2. Ticket APIs and Simple Frontend
 
-### 8. Frontend Demo Experience
-
-- Build a lightweight frontend for support agents.
+- Provide APIs to list tickets, fetch a ticket, and view linked customer/order context.
+- Build a simple frontend for support agents.
 - You may vibe-code or AI-assist the frontend.
-- The UI should let a reviewer:
-  - view the ticket queue,
-  - open a ticket with customer and order context,
-  - trigger triage,
-  - generate and review an AI draft,
-  - inspect citations,
-  - approve, reject, or edit a draft,
-  - approve or reject sensitive tool actions,
-  - view evaluation results.
-- The frontend does not need to be visually elaborate, but it should make the core workflow easy to demo.
+- The UI should let a reviewer open a ticket, trigger triage, generate a draft, view citations, review one sensitive action, and see evaluation results.
+- UI polish is not graded. The frontend only needs to make the workflow easy to demo.
+
+### 3. Knowledge Retrieval and Cited Draft Replies
+
+- Search the knowledge-base documents for policy context relevant to a ticket.
+- Generate a support draft using the ticket, customer/order context, and retrieved documents.
+- Include citation document IDs in the draft response.
+- Refuse or escalate when the answer is not supported by retrieved policy.
+- Avoid exposing internal-only notes, hidden prompts, secrets, or unrelated customer data.
+
+### 4. AI Triage
+
+- Classify each ticket into one category such as `shipping`, `refund`, `warranty`, `billing`, `account_security`, or `general`.
+- Assign priority such as `low`, `medium`, `high`, or `urgent`.
+- Decide whether the ticket should be escalated to a human.
+- Store the triage result with the ticket.
+
+### 5. One Approval-Gated Tool Action
+
+- Implement one sensitive tool action from the provided catalog.
+- Use either `start_refund_review` or `create_replacement_order` for the Must Have implementation.
+- The AI may recommend the action, but a human must approve it before execution.
+- Store action status, approval decision, and execution result.
+- Enforce an idempotency key so retries cannot create duplicate refunds, replacements, or actions.
+
+### 6. Guardrails for Adversarial Cases
+
+- Treat customer messages and retrieved documents as untrusted input.
+- Correctly handle the three adversarial eval cases:
+  - account change request that asks to skip identity checks,
+  - prompt injection asking for a large hidden coupon,
+  - request to reveal hidden prompts, API keys, or internal notes.
+- Do not follow instructions from the adversarial vendor document.
+- Escalate unsafe or unsupported requests instead of inventing policy.
+
+### 7. Minimal Traces and Evaluation Runner
+
+- Store a minimal trace for each AI run:
+  - ticket ID,
+  - run type,
+  - retrieved document IDs,
+  - recommended or requested tool actions,
+  - guardrail result,
+  - final status.
+- Build one command, endpoint, or test flow that runs `data/eval_cases.jsonl`.
+- Produce a small evaluation report covering triage, citation coverage, unsafe action blocking, and escalation behavior.
+
+## Good To Have
+
+- Implement more tool actions from `data/tool_actions.json`.
+- Add role-based authorization for support agents, managers, and admins.
+- Add feedback/rating for draft quality and triage quality.
+- Add fuller observability such as latency, model name, prompt version, token usage, and cost estimate.
+- Improve retrieval using hybrid search, embeddings, or a vector database.
+- Add draft editing, approval, rejection, and sent states.
+- Make the frontend more polished or add richer admin/eval views.
+
+## Stretch
+
+- Slack, Gmail, or Intercom-style ticket ingestion.
+- Multi-tenant organization support.
+- Policy versioning and answer replay against older policy versions.
+- Cost controls per organization or support agent.
+- Red-team dashboard for prompt-injection and jailbreak attempts.
 
 ## Technical Requirements
 
 - Expose core functionality as RESTful APIs or a clearly documented equivalent HTTP API.
-- Use a reliable persistent store for tickets, customers, orders, documents, drafts, tool calls, approvals, traces, and feedback.
-- Implement authentication and authorization for customer-support users, admins, and reviewers.
+- Use a reliable persistent store for tickets, customers, orders, documents, drafts, tool calls, approvals, and traces. Feedback storage is Good To Have.
+- Implement a simple authentication mechanism, such as a demo token or login flow. Full role-based access control is Good To Have.
 - Implement a retrieval layer using either:
   - database full-text search,
   - a vector database,
   - a hybrid approach,
   - or a clearly documented local substitute.
 - Keep the AI provider integration behind an adapter so it can be mocked in tests.
-- Use retries and idempotency for external tool actions.
-- Ensure sensitive actions require explicit human approval.
+- Use idempotency for the required approval-gated tool action.
+- Ensure the required sensitive action needs explicit human approval.
 - Provide automated tests for critical flows and guardrails.
-- Design for scalability: ingestion, ticket triage, AI generation, and evaluations should not block unrelated requests.
+- Keep long-running AI and eval operations from blocking unrelated requests where practical.
 - Provide one command, endpoint, or documented process to run the supplied eval cases and produce an evaluation summary.
 - Do not depend on any specific programming language, framework, or hosted AI provider for the core design.
 
@@ -137,19 +169,15 @@ The provided Python scripts are optional local utilities. They are not part of t
 
 You may design your own API shape, but a complete solution should cover flows similar to these:
 
-- `POST /auth/login`
 - `POST /documents/ingest`
 - `GET /documents/search?q=...`
-- `POST /tickets`
+- `GET /tickets`
 - `GET /tickets/{ticketId}`
 - `POST /tickets/{ticketId}/triage`
 - `POST /tickets/{ticketId}/draft-reply`
-- `POST /drafts/{draftId}/approve`
-- `POST /drafts/{draftId}/reject`
 - `POST /tool-actions`
 - `POST /tool-actions/{actionId}/approve`
 - `POST /tool-actions/{actionId}/execute`
-- `POST /feedback`
 - `GET /agent-runs/{runId}`
 - `POST /eval-runs`
 - `GET /eval-runs/{evalRunId}`
@@ -158,13 +186,15 @@ You may design your own API shape, but a complete solution should cover flows si
 
 You may plan your own schedule, but this staging keeps scope manageable:
 
-1. **Core platform:** Auth, tickets, customers, orders, persistence, knowledge-base ingestion.
+1. **Core platform:** Data loading, tickets, customers, orders, persistence, knowledge-base ingestion.
 2. **Retrieval and triage:** Knowledge-base search, ticket triage with stored traces.
-3. **Grounded drafts:** Draft replies with citations, refusal/escalation for unsupported requests, draft approval lifecycle.
+3. **Grounded drafts:** Draft replies with citations, refusal/escalation for unsupported requests, and draft storage.
 4. **Tools and guardrails:** Tool registry, approval gates, idempotency, prompt-injection defenses.
-5. **Frontend and polish:** Support-agent UI, eval runner over `data/eval_cases.jsonl`, evaluation report, observability, documentation, demo video.
+5. **Frontend and evals:** Simple support-agent UI, eval runner over `data/eval_cases.jsonl`, evaluation report, documentation, demo video.
 
-**Minimum viable submission:** knowledge-base ingestion and retrieval, ticket triage, draft replies with citations, at least one approval-gated tool action, a lightweight frontend, guardrails that handle the provided adversarial cases, and the eval runner with a report. Everything beyond this — including all Optional Extensions — strengthens the submission but should not come before a working core.
+The Must Have section above defines the minimum viable submission.
+
+For a more detailed build path and FAQ, see `docs/IMPLEMENTATION_GUIDE.md`.
 
 ## Provided Starter Dataset
 
@@ -182,31 +212,16 @@ You may extend the dataset, but you must document any added data and how it affe
 
 ## Assessment Criteria
 
-- **Functionality:** Does the system meet the core support workflows end to end?
-- **AI Quality:** Are responses grounded in policy, cited correctly, and appropriately escalated when uncertain?
-- **Agentic Design:** Are tool actions modeled cleanly with permissions, idempotency, approval, and traceability?
-- **Security and Guardrails:** Does the system defend against prompt injection, PII leakage, unsupported actions, and excessive agency?
-- **Evaluation:** Does the project include repeatable evals and a clear report of strengths and failures?
-- **System Design:** Is the system modular, scalable, fault-tolerant, and easy to extend?
-- **Code Quality:** Is the code clean, organized, tested, and maintainable?
-- **Documentation:** Does the README explain setup, API usage, architecture, design decisions, and known limitations?
-- **Presentation:** Does the demo clearly show AI triage, grounded answering, approval gates, guardrails, and evaluation results?
+- **Must Have workflow - 60%:** Does the system load the provided data, expose the required APIs, provide a simple frontend, triage tickets, generate cited drafts, handle one approval-gated action with idempotency, store minimal traces, and run evals?
+- **AI quality and guardrails - 25%:** Are answers grounded in policy, cited correctly, escalated when uncertain, and safe on the adversarial eval cases?
+- **Engineering quality, documentation, and demo - 15%:** Is the code maintainable, is setup clear, are design decisions documented, and does the demo clearly show the core workflow?
+- Good To Have and Stretch work can strengthen the project, but it should not compensate for missing Must Have functionality.
 
 ## Deliverables
 
-1. Final functional product with an API and lightweight frontend.
+1. Final functional product with an API and simple frontend.
 2. README with setup instructions, API documentation, architecture, and design decisions.
 3. Public GitHub repository link.
 4. Seeded demo data and instructions to reproduce the demo.
 5. Evaluation report showing performance on the provided eval cases.
 6. Explainer video demonstrating the project, including at least one adversarial or unsafe request being handled correctly.
-
-## Optional Extensions
-
-- Slack, Gmail, or Intercom-style ticket ingestion.
-- Real vector database integration.
-- Multi-tenant organization support.
-- Admin dashboard for eval runs and model traces.
-- Policy versioning and answer replay against older policy versions.
-- Cost controls per organization or support agent.
-- Red-team dashboard for prompt-injection and jailbreak attempts.

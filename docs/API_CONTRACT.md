@@ -4,11 +4,13 @@ This document describes the expected product and API behavior without requiring 
 
 You may change route names, request shapes, or response shapes if you document the changes clearly. Your implementation should still support the flows below.
 
-## Roles
+## Optional Roles
 
 - `support_agent`: Reviews tickets, drafts, and non-admin tool actions.
 - `support_manager`: Approves sensitive actions and goodwill exceptions.
 - `admin`: Manages knowledge-base ingestion, model configuration, eval runs, and audit logs.
+
+Full role-based access control is Good To Have. For Must Have, a simple demo token or login flow is enough.
 
 ## Core Resources
 
@@ -20,20 +22,28 @@ You may change route names, request shapes, or response shapes if you document t
 - Tool action request
 - Approval
 - Agent run trace
-- Feedback
 - Eval run
+
+Good To Have resources:
+
+- Feedback
+- User roles and permissions
 
 ## Authentication
 
-Implement a realistic authentication mechanism for the chosen stack.
+Implement a simple authentication mechanism for the chosen stack.
 
 Minimum expectation:
 
 - Login or token-based API access.
-- Role-aware authorization.
-- Users must not read or mutate tickets outside their allowed organization or scope.
+- Basic protection so APIs are not completely open.
 
-## Required Flows
+Good To Have:
+
+- Role-aware authorization.
+- Organization or tenant scoping.
+
+## Core API Flows
 
 ### 1. Ingest Knowledge Documents
 
@@ -92,7 +102,15 @@ Example response:
 }
 ```
 
-### 3. Create Ticket
+### 3. List and Fetch Tickets
+
+Expected behavior:
+
+- List tickets from the provided seed data.
+- Fetch a ticket by ID.
+- Include or expose linked customer and order context.
+
+### 4. Create Ticket
 
 Expected behavior:
 
@@ -112,7 +130,9 @@ Example request:
 }
 ```
 
-### 4. Triage Ticket
+Creating new tickets is useful for demos, but Must Have can use the provided seed tickets.
+
+### 5. Triage Ticket
 
 Expected behavior:
 
@@ -134,7 +154,7 @@ Example response:
 }
 ```
 
-### 5. Generate Draft Reply
+### 6. Generate Draft Reply
 
 Expected behavior:
 
@@ -164,15 +184,15 @@ Example response:
 }
 ```
 
-### 6. Approve Or Reject Draft
+### 7. Approve Or Reject Draft
 
-Expected behavior:
+Good To Have behavior:
 
 - Allow a support agent to approve, edit, or reject a draft.
 - Store reviewer ID, timestamp, and reason.
 - Only approved drafts may be sent.
 
-### 7. Request Tool Action
+### 8. Request Tool Action
 
 Expected behavior:
 
@@ -197,23 +217,22 @@ Example action request:
 }
 ```
 
-### 8. Approve And Execute Tool Action
+### 9. Approve And Execute Tool Action
 
 Expected behavior:
 
-- Support managers approve sensitive actions.
-- Low-risk allowed actions may execute automatically if your design permits it.
-- Store execution status, result, errors, and retry attempts.
+- Require a human approval step for the one sensitive action you implement.
+- Store execution status and result.
+- Preserve the idempotency key.
 
-### 9. Submit Feedback
+### 10. Fetch Agent Run Trace
 
 Expected behavior:
 
-- Support agents can rate draft quality and triage quality.
-- Store corrected response text where provided.
-- Track common failure reasons.
+- Fetch trace details for a triage or draft-generation run.
+- Include ticket ID, run type, retrieved document IDs, recommended/requested tool actions, guardrail result, and final status.
 
-### 10. Run Evaluations
+### 11. Run Evaluations
 
 Expected behavior:
 
@@ -234,6 +253,16 @@ Example response:
 }
 ```
 
+## Good To Have Flows
+
+These are useful but not required for Must Have:
+
+- Draft edit/approve/reject lifecycle.
+- Feedback submission and corrected responses.
+- Full role-based authorization.
+- Additional tool actions beyond the one required approval-gated action.
+- Rich admin views for evals and traces.
+
 ## Error Handling
 
 Use consistent API errors. At minimum, represent:
@@ -252,4 +281,4 @@ Tool actions must use idempotency keys so retries do not create duplicate refund
 
 ## Auditability
 
-Every AI-generated answer, triage decision, retrieval result, tool recommendation, approval, and tool execution should be traceable to a ticket and reviewer or system actor.
+Every AI-generated answer, triage decision, retrieval result, tool recommendation, approval, and tool execution should be traceable to a ticket and reviewer or system actor where applicable.

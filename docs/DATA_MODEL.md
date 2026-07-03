@@ -101,9 +101,7 @@ Required fields:
 - `status`
 - `body`
 - `citations`
-- `created_by`
 - `created_at`
-- `updated_at`
 
 Suggested statuses:
 
@@ -162,16 +160,19 @@ Required fields:
 - `ticket_id`
 - `run_type`
 - `status`
-- `model_provider`
-- `model_name`
-- `prompt_version`
 - `retrieved_doc_ids`
 - `tool_calls`
 - `guardrail_results`
+- `created_at`
+
+Good To Have fields:
+
+- `model_provider`
+- `model_name`
+- `prompt_version`
 - `latency_ms`
 - `token_usage`
 - `cost_estimate`
-- `created_at`
 
 Run types:
 
@@ -182,7 +183,9 @@ Run types:
 
 ### Feedback
 
-Required fields:
+Feedback is Good To Have, not required for Must Have.
+
+If you implement feedback, suggested fields are:
 
 - `feedback_id`
 - `ticket_id`
@@ -207,14 +210,18 @@ Required fields:
 
 The tool catalog lives in `data/tool_actions.json`.
 
-Every implementation should enforce:
+Every implementation should enforce these rules for the one required approval-gated action:
 
 - Required payload fields.
 - Allowed ticket categories.
 - Risk level.
 - Human approval requirement.
-- Max coupon amount where present.
 - Idempotency key uniqueness.
+
+Good To Have:
+
+- Max coupon amount where present.
+- Enforcement across every tool in the catalog.
 
 ## Storage Guidance
 

@@ -7,6 +7,7 @@ The capstone is language agnostic. You may implement it in Node.js, Java, Python
 ## Contents
 
 - `TRUSTDESK_PROBLEM_STATEMENT.md` - capstone problem statement.
+- `docs/IMPLEMENTATION_GUIDE.md` - suggested build order, demo scenarios, and FAQ.
 - `docs/API_CONTRACT.md` - language-agnostic API contract and expected flows.
 - `docs/DATA_MODEL.md` - suggested entities, relationships, and storage expectations.
 - `docs/EVALUATION_GUIDE.md` - how to use the eval cases and what to measure.
@@ -47,6 +48,13 @@ Your implementation should provide:
 - An evaluation command, endpoint, or script that runs `data/eval_cases.jsonl` and reports results.
 
 The frontend can be vibe-coded or AI-assisted. It does not need to be visually complex, but it should let you demonstrate ticket triage, grounded draft replies, citations, approval-gated tool actions, and evaluation results.
+
+## Recommended Reading Order
+
+1. Read `TRUSTDESK_PROBLEM_STATEMENT.md`.
+2. Follow `docs/IMPLEMENTATION_GUIDE.md` for the build path.
+3. Use `docs/API_CONTRACT.md` and `docs/DATA_MODEL.md` while designing your implementation.
+4. Use `docs/EVALUATION_GUIDE.md` before writing the eval runner.
 
 ## Security Notes
 
