@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustDesk: AI Support Operations Agent</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-section">
+      <h1>TrustDesk</h1>
+      <span class="logo-badge">AI Support Ops</span>
+    </div>
+    
+    <div class="nav-controls">
+      <div class="nav-tabs">
+        <button id="tab-tickets" class="tab-btn active">Tickets Queue</button>
+        <button id="tab-evals" class="tab-btn">Evaluation Reports</button>
+      </div>
+      
+      <div class="role-picker-container">
+        <label for="role-select">Active Role:</label>
+        <select id="role-select" class="role-select">
+          <option value="support_agent">Support Agent</option>
+          <option value="support_manager">Support Manager (Approver)</option>
+          <option value="admin">System Admin</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    
+    <!-- Tickets View (Default) -->
+    <div id="tickets-view" class="main-container" style="display: flex; width: 100%;">
+      
+      <!-- Sidebar Ticket List -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>Open Tickets</h2>
+          <span id="ticket-total-badge" class="ticket-count">0</span>
+        </div>
+        <div id="ticket-list-container" class="ticket-list">
+          <!-- Populated by JavaScript -->
+          <div style="text-align: center; color: var(--text-muted); margin-top: 40px;">Loading tickets...</div>
+        </div>
+      </aside>
+      
+      <!-- Main Workspace -->
+      <main class="workspace">
+        
+        <!-- Welcome Screen (Visible when no ticket is active) -->
+        <div id="welcome-screen" class="welcome-screen">
+          <h3>Welcome to TrustDesk Workspace</h3>
+          <p>Select a ticket from the left sidebar to begin operations.</p>
+        </div>
+        
+        <!-- Dual Pane Details Workspace -->
+        <div id="workspace-layout" class="ticket-workspace-layout" style="display: none;">
+          
+          <!-- Left Pane (Actions, Triages, Drafts) -->
+          <div class="left-pane">
+            
+            <!-- Ticket Info Card -->
+            <div class="glass-panel">
+              <div class="ticket-header">
+                <h2 id="active-ticket-subject">Subject</h2>
+                <div class="ticket-meta">
+                  <span>ID: <strong id="active-ticket-id" style="font-family: monospace;">tkt_000</strong></span>
+                  <span>|</span>
+                  <span>Channel: <strong id="active-ticket-channel">Email</strong></span>
+                  <span>|</span>
+                  <span>Created: <strong id="active-ticket-date">2026-07-08</strong></span>
+                </div>
+              </div>
+              <div id="active-ticket-body" class="ticket-body">
+                Ticket body text...
+              </div>
+              <div class="btn-group">
+                <button id="btn-triage" class="btn btn-primary">Triage with AI</button>
+                <button id="btn-draft" class="btn btn-secondary">Generate Cited Draft</button>
+              </div>
+            </div>
+            
+            <!-- Triage Results Card (Hidden/Empty until Triaged) -->
+            <div id="triage-card" class="glass-panel" style="display: none;">
+              <h3 class="pane-title">AI Triage Classification</h3>
+              <div class="triage-output-grid">
+                <div class="triage-item">
+                  <div class="triage-item-label">Predicted Category</div>
+                  <div id="triage-category" class="triage-item-value">None</div>
+                </div>
+                <div class="triage-item">
+                  <div class="triage-item-label">Priority</div>
+                  <div id="triage-priority" class="triage-item-value">None</div>
+                </div>
+                <div class="triage-item">
+                  <div class="triage-item-label">Sentiment</div>
+                  <div id="triage-sentiment" class="triage-item-value">None</div>
+                </div>
+                <div class="triage-item">
+                  <div class="triage-item-label">Escalate to Specialist</div>
+                  <div id="triage-escalate" class="triage-item-value">None</div>
+                </div>
+              </div>
+              <div style="margin-top: 15px; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; font-size: 13px;">
+                <span class="context-label">Reasoning:</span>
+                <p id="triage-reason" style="margin-top: 4px; line-height: 1.4; color: #cbd5e0;"></p>
+              </div>
+            </div>
+            
+            <!-- Draft Response Card (Hidden until Drafted) -->
+            <div id="draft-card" class="glass-panel" style="display: none;">
+              <h3 class="pane-title">Grounded Draft Reply</h3>
+              
+              <!-- Guardrail Status Badge -->
+              <div id="guardrail-alert" class="guardrail-alert">
+                <span id="guardrail-status-text">Scanning for policy blocks...</span>
+              </div>
+              
+              <div id="draft-reply-body" class="draft-body">
+                Draft response text...
+              </div>
+              
+              <div>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Retrieved Policies Cites:</span>
+                <div id="citations-container" class="citation-list">
+                  <!-- Citation tags will go here -->
+                </div>
+              </div>
+            </div>
+            
+            <!-- Recommended Action / Approvals Card (Hidden until actions are suggested) -->
+            <div id="action-panel" class="glass-panel" style="display: none;">
+              <h3 class="pane-title">Recommended System Actions</h3>
+              <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <span id="action-tool-name" class="logo-badge" style="background: var(--primary-glow);">tool_name</span>
+                  <span id="action-status-badge" class="badge">PENDING</span>
+                </div>
+                <p id="action-reason" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;"></p>
+                
+                <div id="action-payload-preview" style="font-family: monospace; font-size: 11px; color: #a0aec0; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-bottom: 15px; max-height: 100px; overflow-y: auto;">
+                  <!-- Payload JSON keys -->
+                </div>
+                
+                <div id="action-approval-controls" class="btn-group">
+                  <button id="btn-action-approve" class="btn btn-success">Approve and Execute</button>
+                  <button id="btn-action-reject" class="btn btn-danger">Reject Action</button>
+                </div>
+                <div id="action-agent-message" style="margin-top: 10px; font-size: 12px; color: var(--success-color); display: none;">
+                  <!-- Done executing notice -->
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- Right Pane (Customer Order Context, Audit Traces) -->
+          <div class="right-pane">
+            
+            <!-- Customer Context Card -->
+            <div class="glass-panel">
+              <h3 class="pane-title">Customer Profile</h3>
+              <div class="context-row">
+                <span class="context-label">Name</span>
+                <span id="customer-name" class="context-value">-</span>
+              </div>
+              <div class="context-row">
+                <span class="context-label">Email</span>
+                <span id="customer-email" class="context-value">-</span>
+              </div>
+              <div class="context-row">
+                <span class="context-label">Tier</span>
+                <span id="customer-tier" class="context-value">-</span>
+              </div>
+              <div class="context-row">
+                <span class="context-label">Verified Status</span>
+                <span id="customer-verified" class="context-value">-</span>
+              </div>
+              <div class="context-row">
+                <span class="context-label">Country</span>
+                <span id="customer-country" class="context-value">-</span>
+              </div>
+            </div>
+            
+            <!-- Order Context Card -->
+            <div id="order-card" class="glass-panel">
+              <h3 class="pane-title">Order Context</h3>
+              <div id="order-not-found-msg" style="color: var(--text-muted); font-size: 13px;">No order linked to this ticket.</div>
+              <div id="order-details-container" style="display: none;">
+                <div class="context-row">
+                  <span class="context-label">Order ID</span>
+                  <span id="order-id" class="context-value">-</span>
+                </div>
+                <div class="context-row">
+                  <span class="context-label">Status</span>
+                  <span id="order-status" class="context-value">-</span>
+                </div>
+                <div class="context-row">
+                  <span class="context-label">Payment Status</span>
+                  <span id="order-payment" class="context-value">-</span>
+                </div>
+                <div class="context-row">
+                  <span class="context-label">Total Amount</span>
+                  <span id="order-total" class="context-value">-</span>
+                </div>
+                <div class="context-row">
+                  <span class="context-label">Tracking Num</span>
+                  <span id="order-tracking" class="context-value">-</span>
+                </div>
+                <div class="context-row">
+                  <span class="context-label">Eligible Return Until</span>
+                  <span id="order-return-window" class="context-value">-</span>
+                </div>
+                <div class="order-items-list">
+                  <div style="font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Purchased Items:</div>
+                  <div id="order-items-container">
+                    <!-- Items sublist -->
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Audit Trail Trace Card -->
+            <div class="glass-panel">
+              <h3 class="pane-title">Audit Trail & Traces</h3>
+              <div style="margin-bottom: 10px; font-size: 12px; color: var(--text-muted);">
+                Trace ID: <span id="trace-id" style="font-family: monospace; font-weight: 600;">None</span>
+              </div>
+              <div id="trace-log-content" class="trace-log">
+                No active AI traces generated yet for this session. Run Triage or Draft to create one.
+              </div>
+            </div>
+            
+          </div>
+          
+        </div>
+      </main>
+      
+    </div>
+
+    <!-- Evals View (Hidden by default) -->
+    <div id="evals-view" class="eval-view-container" style="display: none;">
+      
+      <!-- Controls -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+          <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Evaluation Dashboard</h2>
+          <p style="color: var(--text-muted); font-size: 14px;">Run evaluation cases from data/eval_cases.jsonl to test accuracy metrics.</p>
+        </div>
+        <button id="btn-run-eval" class="btn btn-primary">Run Evals Suite</button>
+      </div>
+      
+      <!-- Metrics Grid -->
+      <div class="eval-summary-cards">
+        <div class="eval-card">
+          <div id="eval-metric-total" class="eval-card-num">-</div>
+          <div class="eval-card-label">Total Cases</div>
+        </div>
+        <div class="eval-card">
+          <div id="eval-metric-category" class="eval-card-num">-</div>
+          <div class="eval-card-label">Triage Category</div>
+        </div>
+        <div class="eval-card">
+          <div id="eval-metric-priority" class="eval-card-num">-</div>
+          <div class="eval-card-label">Triage Priority</div>
+        </div>
+        <div class="eval-card">
+          <div id="eval-metric-citation" class="eval-card-num">-</div>
+          <div class="eval-card-label">Citation Coverage</div>
+        </div>
+        <div class="eval-card">
+          <div id="eval-metric-safety" class="eval-card-num">-</div>
+          <div class="eval-card-label">Unsafe Action Block</div>
+        </div>
+      </div>
+      
+      <!-- Evals Table -->
+      <div class="eval-table-panel">
+        <h3 class="pane-title">Case-by-Case Analysis</h3>
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>Case ID</th>
+              <th>Ticket ID</th>
+              <th>Triage Accuracy</th>
+              <th>Citations Check</th>
+              <th>Guardrail Protection</th>
+              <th>Escalation Check</th>
+              <th>Overall Status</th>
+            </tr>
+          </thead>
+          <tbody id="eval-results-tbody">
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+                No evaluation logs found. Click "Run Evals Suite" to execute.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+
+  </div>
+
+  <!-- Policy Highlights modal or text display (overlay highlight) -->
+  <div id="policy-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="glass-panel" style="width: 600px; max-height: 80vh; overflow-y: auto; padding: 30px; position: relative;">
+      <button id="btn-close-policy" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">&times;</button>
+      <h2 id="policy-modal-title" style="margin-bottom: 15px; font-size: 20px;">Policy Title</h2>
+      <pre id="policy-modal-content" style="white-space: pre-wrap; font-family: 'Outfit', sans-serif; font-size: 14px; line-height: 1.6; color: #d1d4db;"></pre>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
