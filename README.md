@@ -4,6 +4,38 @@ This repository contains a self-contained capstone package for building **TrustD
 
 The capstone is language agnostic. You may implement it in Node.js, Java, Python, Go, Ruby, or any stack you are comfortable with, as long as you satisfy the product, API, data, security, and evaluation requirements.
 
+HLD:
+
++-------------------------------------------------------------+
+|                       FRONTEND SPA                          |
+|         (HTML5 Dashboard, CSS Glassmorphism, JS Client)     |
++-------------------------------------------------------------+
+                               |
+                               |  REST API Requests with 
+                               |  Bearer Auth Token
+                               v
++-------------------------------------------------------------+
+|                       FASTAPI BACKEND                       |
+|                                                             |
+|   +-------------------+             +-------------------+   |
+|   |  Auth Dependency  |             |  Retrieval Layer  |   |
+|   |   (RBAC Checks &  |             |  (Word Overlap &  |   |
+|   |   Token Parsing)  |             |    FTS5 Search)   |   |
+|   +-------------------+             +-------------------+   |
+|             |                                 |             |
+|             v                                 v             |
+|   +-------------------+             +-------------------+   |
+|   |    AI Adapter     |<----------->|    SQLite DB      |   |
+|   |  (Mock AI / LLM)  |             | (9 Schema Tables) |   |
+|   +-------------------+             +-------------------+   |
+|             |                                 |             |
+|             v                                 v             |
+|   +-------------------+             +-------------------+   |
+|   |  Eval Suite Run   |             |   Tool Actions    |   |
+|   | (Background Task) |             | (Approval Gated)  |   |
+|   +-------------------+             +-------------------+   |
++-------------------------------------------------------------+
+
 ## Contents
 
 - `TRUSTDESK_PROBLEM_STATEMENT.md` - capstone problem statement.
