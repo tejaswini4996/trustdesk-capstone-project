@@ -39,6 +39,15 @@ from backend.ai_adapter import run_triage, run_draft
 
 app = FastAPI(title="TrustDesk Support Operations API", version="1.0.0")
 
+@app.on_event("startup")
+def on_startup():
+    from backend.database import init_db, seed_db
+    init_db()
+    try:
+        seed_db()
+    except Exception as e:
+        print(f"Seeding database on startup: {e}")
+
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
