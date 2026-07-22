@@ -1,5 +1,7 @@
 # TrustDesk Capstone Pack
 
+http://127.0.0.1:8000/
+
 This repository contains a self-contained capstone package for building **TrustDesk**, an AI-first customer support operations product.
 
 The capstone is language agnostic. You may implement it in Node.js, Java, Python, Go, Ruby, or any stack you are comfortable with, as long as you satisfy the product, API, data, security, and evaluation requirements.
